@@ -1,0 +1,48 @@
+Overview
+Quantum chemistry with neural networks
+ab-inito量子化学（QC）的一个重大挑战是解决描述重核和轨道电子相互作用的多体薛定谔方程。不幸的是，这是一个极其困难的问题，因此大量的研究工作已经并将继续针对QC中的数值方法。通常，这些方法通过优化“斯莱特行列式”基集中的波函数来工作。（实际上，这些是单电子轨道的反对称张量乘积，但为了我们的目的，我们不要担心细节。）通常，斯莱特行列式的数量——以及优化的复杂性——随着系统规模呈指数级增长，但最近机器学习（ML）已经成为解决这个看似棘手的缩放问题的可能工具。
+
+翻译/免责声明：我们可以使用ML并且它显示了一些有前途的属性，但目前SOTA结果仍然属于实际环境中已建立的数值方法（例如耦合簇）。
+
+Project summary
+
+我们遵循Choo等人提出的方法将相互作用的费米子的指数复杂系统映射到相互作用的量子比特的等效（并且仍然是指数级大）系统（详见他们或我们的论文）。优点是我们可以将最初为凝聚态物理（CMP）开发的神经网络量子态（NNQS）（具有可区分的相互作用粒子）应用于电子结构计算（具有不可区分的电子和费米子反系统）。
+
+该项目提出，简单地将CMP技术应用于QC将不可避免地无法利用我们对分子系统的重要先验知识。此外，NNQS的随机优化依赖于重复采样波函数，这可能非常昂贵。该项目是试验不同NNQS的沙盒，特别是我们在论文中介绍的基于自回归神经网络的ansatz。我们方法的主要好处是：
+
+1、允许高效采样，尤其是QC中典型的高度不对称波函数，
+2、允许物理先验——如电子数守恒、整体自旋和可能的系统——嵌入网络而不牺牲可表达性。
+
+Getting started
+
+Requirements：
+底层神经网络需要PyTorch。分子系统通常由OpenFermion处理，后端计算和基线需要和Psi4。请注意，此代码需要OpenFermion0.11.0，并且需要重构才能与较新版本一起使用。在其他方面，所有其他必需的包——numpy、matplotlib、seborn（如果你想要漂亮的绘图）等——都是标准的。然而，具体来说，链接的Colab笔记本将提供一个可以运行代码的环境。
+
+experiments：
+Experimental scripts, including those to reproduced published results, for NAQS and Psi4.
+
+molecules：
+The molecular data required to reproduce published results.
+
+src/src_cpp：
+Python and cython source code for the main codebase and fast calculations, respectively.
+
+Running experiments：
+Further details are provided in the run_naqs.ipynb notebook, however the published experiments can be run using the provided batch scripts.
+>>> experiments/bash/naqs/batch_train.sh 0 LiH
+
+在这里，0是要使用的GPU编号（如果有可用，否则将默认使用CPU），LiH可以替换为分子目录中的任何文件夹。同样，experimental ablations可以使用相应的bash脚本运行。
+>>> experiments/bash/naqs/batch_train_no_amp_sym.sh 0 LiH
+>>> experiments/bash/naqs/batch_train_no_mask.sh 0 LiH
+>>> experiments/bash/naqs/batch_train_full_mask.sh 0 LiH
+
+
+
+ps：
+experimental ablations（来自豆包，仅供参考）
+定义
+在计算机领域，特别是在机器学习和神经科学相关的研究中，“experimental ablations”（实验性消融）是一种研究方法。它主要是通过系统地去除（或 “消融”）某个模型（如神经网络）的特定组件、特征或连接，然后观察模型性能的变化，以此来分析这些组件对整个系统功能的贡献。
+示例
+以一个简单的图像识别神经网络为例。假设这个网络由多个卷积层、池化层和全连接层组成。如果我们想了解某个卷积层对图像识别准确率的贡献，我们可以使用实验性消融方法。
+具体操作是，我们可以在保持其他层不变的情况下，将这个特定的卷积层移除，或者将其参数设置为零等方式使其 “失效”。然后，用相同的测试数据集对修改后的网络进行评估，比较其准确率、召回率等性能指标与原始网络的差异。
+如果去除该卷积层后，图像识别的准确率大幅下降，这就表明这个卷积层在整个图像识别过程中起着非常重要的作用。
